@@ -3,12 +3,13 @@ from setuptools import setup, find_packages
 setup(
     name="weather_cli",
     version="0.1",
-    py_modules=["main"],
-    packages=find_packages(),
-    install_requires=["Click"],
+    packages=find_packages(where="src"),
+    package_dir={"": "src"},
+    install_requires=["Click",
+                      'requests'],
     entry_points={
         "console_scripts": [
-            "weather=main:main",
+            "weather=weather_cli.main:main",
         ],
     },
 )
