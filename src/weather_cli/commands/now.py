@@ -68,7 +68,9 @@ def find_coordinates(city, district):
 @click.command(name="now")
 @click.option("--city", prompt="Enter city name", help="City name to search")
 @click.option("--district", default=None, help="District/area name (optional)")
-def now(city, district):
+@click.option( '--days', '-d', '--number', '-n', default=[1], show_default=True,
+              help="Number of days to show [1-7]")
+def now(city, district, days):
     """Get coordinates by city name and/or district"""
     data = find_coordinates(city, district)
 
@@ -87,7 +89,8 @@ def now(city, district):
         params = {
             "latitude": data['lat'],
             "longitude": data['lon'],
-            "hourly": "temperature_2m"
+            "hourly": "temperature_2m",
+            "forecast_days": max(1, min(7, days))
         }
         response = requests.get(API_URL_OPEN_METEO, params=params)
         response.raise_for_status()
