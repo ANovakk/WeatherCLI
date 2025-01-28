@@ -1,7 +1,10 @@
+from wsgiref import headers
+
 import click
 import requests
 
 API_URL_NOMINATIM = "https://nominatim.openstreetmap.org/search"
+API_URL_OPEN_METEO="https://api.open-meteo.com/v1/forecast"
 
 
 def find_coordinates(city, district):
@@ -80,6 +83,31 @@ def now(city, district):
     ]
     click.echo("\n".join(output))
 
+    try:
+        params = {
+            "latitude": data['lat'],
+            "longitude": data['lon'],
+            "hourly": "temperature_2m"
+        }
+        response = requests.get(API_URL_OPEN_METEO, params=params)
+        response.raise_for_status()
+
+        weather_data = response.json()
+        print(weather_data)
+
+        for i in range(len(weather_data['hourly']['time'])):
+            weather_time = weather_data['hourly']['time'][i]
+            weather_temp = weather_data['hourly']['temperature_2m'][i]
+            print(i + 1, weather_time, weather_temp)
+
+    except requests.exceptions.HTTPError as e:
+        click.echo(f"HTTP error: {str(e)}")
+    except requests.exceptions.RequestException as e:
+        click.echo(f"Connection error: {str(e)}")
+    except (KeyError, IndexError) as e:
+        click.echo("Data processing error")
+    except Exception as e:
+        click.echo(f"Unexpected error: {str(e)}")
 
 
 if __name__ == "__main__":
