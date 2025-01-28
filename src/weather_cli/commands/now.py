@@ -3,18 +3,28 @@ import requests
 
 API_URL_NOMINATIM = "https://nominatim.openstreetmap.org/search"
 
-@click.command(name="now")
-@click.option("--city", prompt="Enter city name", help="City name to search")
-@click.option("--district", default=None, help="District/area name (optional)")
-def now(city, district):
-    """
-    Get coordinates by city name and/or district
-    """
-    try:
-        headers = {
-            'User-Agent': 'GeoCLI/1.0 (contact@example.com)'
-        }
 
+def find_coordinates(city, district):
+    """
+    Returns dictionary with coordinates or error info.
+    Structure: {
+        'success': bool,
+        'lat': float|None,
+        'lon': float|None,
+        'display_name': str|None,
+        'error': str|None
+    }
+    """
+    result = {
+        'success': False,
+        'lat': None,
+        'lon': None,
+        'display_name': None,
+        'error': None
+    }
+
+    try:
+        headers = {'User-Agent': 'GeoCLI/1.0 (contact@example.com)'}
         search_query = f"{district}, {city}" if district else city
 
         params = {
@@ -29,28 +39,48 @@ def now(city, district):
 
         data = response.json()
         if not data:
-            click.echo(f"Location not found: {search_query}")
-            return
+            result['error'] = f"Location not found: {search_query}"
+            return result
 
         location = data[0]
-        lat = location['lat']
-        lon = location['lon']
-        display_name = location.get('display_name', 'N/A')
-
-        output = [
-            f"Search results for: {search_query}",
-            f"- Coordinates: {lat}, {lon}",
-            f"- Full name: {display_name}"
-        ]
-
-        click.echo("\n".join(output))
+        result.update({
+            'success': True,
+            'lat': float(location['lat']),
+            'lon': float(location['lon']),
+            'display_name': location.get('display_name', 'N/A')
+        })
 
     except requests.exceptions.HTTPError as e:
-        click.echo(f"HTTP error: {str(e)}")
+        result['error'] = f"HTTP error: {str(e)}"
     except requests.exceptions.RequestException as e:
-        click.echo(f"Connection error: {str(e)}")
+        result['error'] = f"Connection error: {str(e)}"
     except (KeyError, IndexError) as e:
-        click.echo("Data processing error")
+        result['error'] = "Data processing error"
+    except Exception as e:
+        result['error'] = f"Unexpected error: {str(e)}"
+
+    return result
+
+
+@click.command(name="now")
+@click.option("--city", prompt="Enter city name", help="City name to search")
+@click.option("--district", default=None, help="District/area name (optional)")
+def now(city, district):
+    """Get coordinates by city name and/or district"""
+    data = find_coordinates(city, district)
+
+    if not data['success']:
+        click.echo(f"Error: {data['error']}")
+        return
+
+    output = [
+        f"Search results for: {city}" + (f" ({district})" if district else ""),
+        f"- Coordinates: {data['lat']}, {data['lon']}",
+        f"- Full name: {data['display_name']}"
+    ]
+    click.echo("\n".join(output))
+
+
 
 if __name__ == "__main__":
     now()
