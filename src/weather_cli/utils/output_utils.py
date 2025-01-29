@@ -19,13 +19,13 @@ param_units = {
     "wind_gusts_10m": "m/s"
 }
 
-def output_result(data, hourly_params):
-    print(data)
-
-    for i in range(len(data['hourly']['time'])):
+def output_result(data, hourly_params, days_selected_flag):
+    limit = len(data['hourly']['time']);
+    if days_selected_flag == False:
+        limit = 6
+    for i in range(limit):
         weather_time = data['hourly']['time'][i]
         weather_temp = data['hourly']['temperature_2m'][i]
-        print(i + 1, weather_time, weather_temp)
 
         table = PrettyTable()
         table.field_names = [f"Weather for {weather_time}", "Values"]

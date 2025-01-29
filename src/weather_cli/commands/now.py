@@ -10,7 +10,7 @@ API_URL_OPEN_METEO="https://api.open-meteo.com/v1/forecast"
 @click.command(name="now")
 @click.option("--city", prompt="Enter city name", help="City name to search")
 @click.option("--district", default=None, help="District/area name (optional)")
-@click.option( '--days', '-d', '--number', '-n', default=1, show_default=True,
+@click.option( '--days', '-d', '--number', '-n', type=int,
               help="Number of days to show [1-7]")
 @click.option('--wind', '-w', is_flag=True, help="Include wind speed (optional)")
 @click.option('--precipitation', '-p', is_flag=True, help="Include precipitation (optional)")
@@ -35,6 +35,11 @@ def now(city, district, days, wind,
     click.echo("\n".join(output))
 
     try:
+        if days is None:
+            days = 2
+            days_selected_flag = False
+        else:
+            days_selected_flag = True
         get_wind_value = "wind_speed_10m" if wind else None
         get_precipitation = "precipitation_probability" if precipitation else None
         get_humidity = "relative_humidity_2m" if humidity else None
@@ -57,7 +62,7 @@ def now(city, district, days, wind,
         response.raise_for_status()
 
         weather_data = response.json()
-        output_result(weather_data, hourly_params)
+        output_result(weather_data, hourly_params, days_selected_flag)
 
     except requests.exceptions.HTTPError as e:
         click.echo(f"HTTP error: {str(e)}")
