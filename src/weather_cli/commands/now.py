@@ -1,4 +1,5 @@
 from .geo_utils import find_coordinates
+from .output_utils import output_result
 
 import click
 import requests
@@ -40,28 +41,23 @@ def now(city, district, days, wind,
         get_pressure = "pressure_msl" if pressure else None
         get_cloud_cover = "cloud_cover" if cloud else None
         get_wind_gusts = "wind_gusts_10m" if gust else None
-        params = {
-            "latitude": data['lat'],
-            "longitude": data['lon'],
-            "hourly": ["temperature_2m",
-                       get_wind_value,
+        hourly_params = [get_wind_value,
                        get_precipitation,
                        get_humidity,
                        get_pressure,
                        get_cloud_cover,
-                       get_wind_gusts],
+                       get_wind_gusts]
+        params = {
+            "latitude": data['lat'],
+            "longitude": data['lon'],
+            "hourly": ["temperature_2m"] + hourly_params,
             "forecast_days": max(1, min(7, days)),
         }
         response = requests.get(API_URL_OPEN_METEO, params=params)
         response.raise_for_status()
 
         weather_data = response.json()
-        print(weather_data)
-
-        for i in range(len(weather_data['hourly']['time'])):
-            weather_time = weather_data['hourly']['time'][i]
-            weather_temp = weather_data['hourly']['temperature_2m'][i]
-            print(i + 1, weather_time, weather_temp)
+        output_result(weather_data, hourly_params)
 
     except requests.exceptions.HTTPError as e:
         click.echo(f"HTTP error: {str(e)}")
