@@ -1,5 +1,5 @@
-from .geo_utils import find_coordinates
-from .output_utils import output_result
+from weather_cli.utils.geo_utils import find_coordinates
+from weather_cli.utils.output_utils import output_result
 
 import click
 import requests

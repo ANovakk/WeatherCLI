@@ -6,7 +6,8 @@ setup(
     packages=find_packages(where="src"),
     package_dir={"": "src"},
     install_requires=["Click",
-                      'requests'],
+                      'requests',
+                      'prettytable'],
     entry_points={
         "console_scripts": [
             "weather=weather_cli.main:main",
