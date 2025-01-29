@@ -9,7 +9,7 @@ API_URL_OPEN_METEO="https://api.open-meteo.com/v1/forecast"
 @click.command(name="now")
 @click.option("--city", prompt="Enter city name", help="City name to search")
 @click.option("--district", default=None, help="District/area name (optional)")
-@click.option( '--days', '-d', '--number', '-n', default=[1], show_default=True,
+@click.option( '--days', '-d', '--number', '-n', default=1, show_default=True,
               help="Number of days to show [1-7]")
 @click.option('--wind', '-w', is_flag=True, help="Include wind speed (optional)")
 @click.option('--precipitation', '-p', is_flag=True, help="Include precipitation (optional)")
