@@ -1,5 +1,6 @@
 from prettytable import PrettyTable
 from .get_emoji_util import get_emoji
+from datetime import datetime
 
 param_names = {
     "relative_humidity_2m": "Humidity",
@@ -21,9 +22,13 @@ param_units = {
 
 def output_result(data, hourly_params, days_selected_flag):
     limit = len(data['hourly']['time']);
+    time_boundary = 0
     if days_selected_flag == False:
         limit = 6
-    for i in range(limit):
+        now = datetime.now()
+        time_boundary = now.hour
+
+    for i in range(time_boundary, time_boundary + limit):
         weather_time = data['hourly']['time'][i]
         weather_temp = data['hourly']['temperature_2m'][i]
 
