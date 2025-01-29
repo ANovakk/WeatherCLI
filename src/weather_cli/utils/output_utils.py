@@ -72,4 +72,4 @@ def output_horizontal_chart(data):
         bar_length = int((temp - min_temp) / temp_range * 40) if temp_range > 0 else 1
         bar = "█" * bar_length
 
-        console.print(f"[bold]{hour}[/bold] [bold red]{temp:2}°C[/bold red] [blue]{bar}[/blue]")
+        console.print(f"[bright_black]{hour}[/bright_black] [bright_green]{temp:2}°C[/bright_green] [blue]{bar}[/blue]")
