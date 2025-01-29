@@ -2,6 +2,7 @@ from prettytable import PrettyTable
 from .get_emoji_util import get_emoji
 from datetime import datetime
 from rich.console import Console
+import click
 
 param_names = {
     "relative_humidity_2m": "Humidity",
@@ -23,12 +24,15 @@ param_units = {
 
 def output_result(data, hourly_params, days_selected_flag):
     output_horizontal_chart(data)
+
     limit = len(data['hourly']['time']);
     time_boundary = 0
     if days_selected_flag == False:
         limit = 6
         now = datetime.now()
         time_boundary = now.hour
+
+    pause_cnt = 0
 
     for i in range(time_boundary, time_boundary + limit):
         weather_time = data['hourly']['time'][i]
@@ -47,7 +51,10 @@ def output_result(data, hourly_params, days_selected_flag):
                 unit = param_units.get(param, param)
                 table.add_row([param_name, f"{value} {unit} {emoji}" if value is not None else "N/A"])
 
+        if (pause_cnt % 3 == 0):
+            click.pause()
         print(table)
+        pause_cnt += 1
 
 def output_horizontal_chart(data):
     console = Console()
